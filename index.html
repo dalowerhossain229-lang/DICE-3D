@@ -302,14 +302,14 @@
             }
         }
 
-               // 🚀 [মাস্টার সিঙ্ক ফিক্সড]: সিরিয়াল পজিশনের ঝামেলা এড়াতে সরাসরি ডাইরেক্ট অবজেক্ট ডাটা রিডিং বর্ম ভাই ভাই!
+             // 🚀 [মাস্টার সিঙ্ক ফিক্সড]: ডাইরেক্ট অবজেক্ট ডাটা থেকে সরাসরি ওরিজিনাল ভ্যারিয়েবল চাবি ক্যাচ লক ভাই ভাই!
         function showFinalResult(data) {
             const msgBox = document.getElementById("win-status-box");
             const textMsg = document.getElementById("win-text-msg");
 
-            // সার্ভার থেকে আসা (winSum এবং winningType) ওরিজিনাল চাবি ডিরেক্ট ক্যাচ লক ভাই ভাই
-            const actualSum = data.winSum !== undefined ? data.winSum : 0;
-            const actualType = data.winningType || "ODD";
+            // ব্যাকএ্যান্ড থেকে আসা ডিরেক্ট ভ্যারিয়েবল ক্যাচিং বর্ম ভাই ভাই
+            const actualSum = (data && data.winSum !== undefined) ? data.winSum : 0;
+            const actualType = (data && data.winningType) ? data.winningType : "ODD";
             const typeNameBengali = (actualType === "EVEN") ? "জোড়" : (actualType === "TRIPLE") ? "ট্রিপল 👑" : "বিজোড়";
 
             if (data.status === "win") {
@@ -331,7 +331,7 @@
             }
         }
 
-        // 🧠 [সার্ভার রেসপন্স ইন্টারসেপ্টর কারেকশন বর্ম ভাই ভাই]
+        // 🧠 [সার্ভার রেসপন্স ইন্টারсеপ্টর কমপ্লিট ডাটা রিসিভার কারেকশন ভাই ভাই]
         async function handleRoyalDiceShake() {
             if (isSpinning) return;
             if (!selectedOption) {
@@ -383,7 +383,7 @@
                     setTimeout(() => {
                         clearInterval(motionInterval);
                         drawStaticDice(data.dice1, data.dice2, data.dice3);
-                        // 🚀 [মেগা ফিক্সড]: সিরিয়াল ছাড়া সরাসরি কমপ্লিট ডাটা অবজেক্ট পাস লক ভাই ভাই!
+                        // 🚀 কমপ্লিট রেসপন্স বডি সরাসরি মেথডে পুশ লক ভাই ভাই!
                         showFinalResult(data);
                     }, 1500);
 
@@ -422,4 +422,4 @@
     </script>
 </body>
 </html>
-         
+          
