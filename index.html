@@ -302,18 +302,20 @@
             }
         }
 
-        function showFinalResult(status, winAmount, sumValue, resultName) {
+                function showFinalResult(status, winAmount, winDice1, winDice2, winDice3, winSum, winnerType) {
             const msgBox = document.getElementById("win-status-box");
             const textMsg = document.getElementById("win-text-msg");
 
+            // 🚀 [ভ্যারিয়েবল বাগ ফিক্সড]: সার্ভার ডাটা অনুযায়ী জোড়/বিজোড় নাম নিখুঁত কনভার্ট লক ভাই ভাই!
+            const typeNameBengali = (winnerType === "EVEN") ? "জোড়" : (winnerType === "TRIPLE") ? "ট্রিপল 👑" : "বিজোড়";
+
             if (status === "win") {
-                // 🎵 বাজি জিতে টাকা ডবল বা ৩০ গুণ হলে win2.mp3 রাজকীয় সাউন্ড ফায়ার লক ভাই!
                 playAudio('win');
                 msgBox.className = "win-status-container win-glow-bar";
-                textMsg.innerText = `🏆 মেগা উইন!! যোগফল: ${sumValue} (${resultName}) [৳${winAmount}]`;
+                textMsg.innerText = `🏆 মেগা উইন!! যোগফল: ${winSum} (${typeNameBengali}) [৳${winAmount}]`;
             } else {
                 msgBox.className = "win-status-container lose-glow-bar";
-                textMsg.innerText = `❌ যোগফল: ${sumValue} (${resultName})। এই রাউন্ডে ভাগ্য সহায় হয়নি ভাই!`;
+                textMsg.innerText = `❌ যোগফল: ${winSum} (${typeNameBengali})। এই রাউন্ডে ভাগ্য সহায় হয়নি ভাই!`;
             }
 
             document.getElementById("user-balance").innerText = balance.toFixed(2);
@@ -321,8 +323,8 @@
 
             if (isAuto) {
                 autoInterval = setTimeout(() => {
-                    if (isAuto) handleDiceShake();
-                }, 2000);
+                    if (isAuto) handleRoyalDiceShake();
+                }, 2500);
             }
         }
 
@@ -332,7 +334,7 @@
             if (!isAuto && autoInterval) clearTimeout(autoInterval);
         }
 
-        // 🎯 [আপনার রিকোয়ারমেন্ট অনুযায়ী ৩টি প্রিমিয়াম সাউন্ড ও বাফার গেটওয়ে লক ভাই ভাই]
+        // 🎯 [৩টি ওরিজিনাল প্রিমিয়াম ক্যাসিনো সাউন্ড ও বাফার গেটওয়ে লক ভাই ভাই]
         const slotSounds = {
             click: new Audio('click2.mp3'),
             spin: new Audio('spin2.mp3'),
