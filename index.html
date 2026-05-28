@@ -269,24 +269,27 @@
             playAudio('click');
         }
 
-        function adjustBet(action) {
+                function adjustBet(action) {
             if (isSpinning) return;
             if (action === 'minus' && currentBet > 1) {
                 if (currentBet <= 10) currentBet -= 1;
                 else if (currentBet <= 100) currentBet -= 10;
-                else currentBet -= 50;
+                else if (currentBet <= 1000) currentBet -= 100;
+                else currentBet -= 500;
             }
-            if (action === 'plus' && currentBet < 2000) {
+            if (action === 'plus' && currentBet < 20000) { // 🚀 সর্বোচ্চ ২০০০০ লিমিট লক ভাই ভাই
                 if (currentBet < 10) currentBet += 1;
                 else if (currentBet < 100) currentBet += 10;
-                else currentBet += 50;
+                else if (currentBet < 1000) currentBet += 100;
+                else currentBet += 500;
             }
             if (currentBet < 1) currentBet = 1;
-            if (currentBet > 2000) currentBet = 2000;
+            if (currentBet > 20000) currentBet = 20000; // 🚀 সর্বোচ্চ ২০০০০ লিমিট লক ভাই ভাই
             
             document.getElementById("bet-display").innerText = `৳${currentBet}`;
             playAudio('click');
         }
+
 
         function toggleMute() {
             isMuted = !isMuted;
