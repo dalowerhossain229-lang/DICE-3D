@@ -54,8 +54,8 @@ app.post('/api/dice3d-shake', async (req, res) => {
     const userPrediction = prediction || "ODD"; 
 
     // 🔒 বাজি জিরো হওয়া প্রতিরোধ বর্ম লক
-    if (reqAmount < 1 || reqAmount > 2000) {
-        return res.json({ success: false, message: "🚨 Invalid Bet Amount (৳১ - ৳২০০০)" });
+    if (reqAmount < 1 || reqAmount > 20000) {
+        return res.json({ success: false, message: "🚨 Invalid Bet Amount (৳১ - ৳২০০০০)" });
     }
 
     try {
