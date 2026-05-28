@@ -302,20 +302,23 @@
             }
         }
 
-                function showFinalResult(status, winAmount, winDice1, winDice2, winDice3, winSum, winnerType) {
+               // 🚀 [মাস্টার সিঙ্ক ফিক্সড]: সিরিয়াল পজিশনের ঝামেলা এড়াতে সরাসরি ডাইরেক্ট অবজেক্ট ডাটা রিডিং বর্ম ভাই ভাই!
+        function showFinalResult(data) {
             const msgBox = document.getElementById("win-status-box");
             const textMsg = document.getElementById("win-text-msg");
 
-            // 🚀 [ভ্যারিয়েবল বাগ ফিক্সড]: সার্ভার ডাটা অনুযায়ী জোড়/বিজোড় নাম নিখুঁত কনভার্ট লক ভাই ভাই!
-            const typeNameBengali = (winnerType === "EVEN") ? "জোড়" : (winnerType === "TRIPLE") ? "ট্রিপল 👑" : "বিজোড়";
+            // সার্ভার থেকে আসা (winSum এবং winningType) ওরিজিনাল চাবি ডিরেক্ট ক্যাচ লক ভাই ভাই
+            const actualSum = data.winSum !== undefined ? data.winSum : 0;
+            const actualType = data.winningType || "ODD";
+            const typeNameBengali = (actualType === "EVEN") ? "জোড়" : (actualType === "TRIPLE") ? "ট্রিপল 👑" : "বিজোড়";
 
-            if (status === "win") {
+            if (data.status === "win") {
                 playAudio('win');
                 msgBox.className = "win-status-container win-glow-bar";
-                textMsg.innerText = `🏆 মেগা উইন!! যোগফল: ${winSum} (${typeNameBengali}) [৳${winAmount}]`;
+                textMsg.innerText = `🏆 মেগা উইন!! যোগফল: ${actualSum} (${typeNameBengali}) [৳${data.winAmount}]`;
             } else {
                 msgBox.className = "win-status-container lose-glow-bar";
-                textMsg.innerText = `❌ যোগফল: ${winSum} (${typeNameBengali})। এই রাউন্ডে ভাগ্য সহায় হয়নি ভাই!`;
+                textMsg.innerText = `❌ যোগফল: ${actualSum} (${typeNameBengali})। এই রাউন্ডে ভাগ্য সহায় হয়নি ভাই!`;
             }
 
             document.getElementById("user-balance").innerText = balance.toFixed(2);
@@ -328,13 +331,80 @@
             }
         }
 
+        // 🧠 [সার্ভার রেসপন্স ইন্টারসেপ্টর কারেকশন বর্ম ভাই ভাই]
+        async function handleRoyalDiceShake() {
+            if (isSpinning) return;
+            if (!selectedOption) {
+                alert("🚨 আগে বাজি ধরার যেকোনো ১টি ঘর (EVEN, ODD বা TRIPLE) সিলেক্ট করুন ভাই!");
+                isAuto = false;
+                document.getElementById("auto-btn").classList.remove("active");
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById("spin-btn").disabled = true;
+            document.getElementById("win-status-box").className = "win-status-container";
+            document.getElementById("win-text-msg").innerText = "🎲 কাপের ভেতর ছক্কাগুলো কাঁপছে...";
+
+            playAudio('click');
+            playAudio('spin');
+
+            // ৩ডি ডাইস রোটেশন ফেক মোশন অন ফায়ার ভাই ভাই
+            let motionCount = 0;
+            const motionInterval = setInterval(() => {
+                motionCount++;
+                drawStaticDice(
+                    Math.floor(Math.random() * 6) + 1,
+                    Math.floor(Math.random() * 6) + 1,
+                    Math.floor(Math.random() * 6) + 1
+                );
+                if (motionCount > 15) clearInterval(motionInterval);
+            }, 80);
+
+            try {
+                const response = await fetch(`${SERVER_URL}/api/dice3d-shake`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        userId: urlUserId,
+                        amount: parseFloat(currentBet),
+                        wallet: urlWallet,
+                        prediction: selectedOption
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data && data.success === true) {
+                    balance = parseFloat(data.balance);
+                    if (window.parent) window.parent.postMessage({ action: "refresh_wallet" }, "*");
+                    if (window.top) window.top.postMessage({ action: "refresh_wallet" }, "*");
+
+                    setTimeout(() => {
+                        clearInterval(motionInterval);
+                        drawStaticDice(data.dice1, data.dice2, data.dice3);
+                        // 🚀 [মেগা ফিক্সড]: সিরিয়াল ছাড়া সরাসরি কমপ্লিট ডাটা অবজেক্ট পাস লক ভাই ভাই!
+                        showFinalResult(data);
+                    }, 1500);
+
+                } else {
+                    clearInterval(motionInterval);
+                    alert(data.message || "❌ Insufficient Balance! Please Recharge.");
+                    stopDiceState();
+                }
+            } catch (err) {
+                clearInterval(motionInterval);
+                alert("⚠️ সেশন আউট! আবার SHAKE বোতাম চাপুন ভাই ভাই।");
+                stopDiceState();
+            }
+        }
+
         function stopDiceState() {
             isSpinning = false;
             document.getElementById("spin-btn").disabled = false;
             if (!isAuto && autoInterval) clearTimeout(autoInterval);
         }
 
-        // 🎯 [৩টি ওরিজিনাল প্রিমিয়াম ক্যাসিনো সাউন্ড ও বাফার গেটওয়ে লক ভাই ভাই]
         const slotSounds = {
             click: new Audio('click2.mp3'),
             spin: new Audio('spin2.mp3'),
@@ -352,4 +422,4 @@
     </script>
 </body>
 </html>
-
+         
