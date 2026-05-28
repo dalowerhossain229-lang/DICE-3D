@@ -95,13 +95,15 @@ app.post('/api/dice3d-shake', async (req, res) => {
             d3 = Math.floor(Math.random() * 6) + 1;
             totalSum = d1 + d2 + d3;
 
-            if (d1 === d2 && d2 === d3) {
+                        if (d1 === d2 && d2 === d3) {
                 selectedWinner = "TRIPLE";
                 winMultiplier = 30.00; 
             } else {
                 selectedWinner = (totalSum % 2 === 0) ? "EVEN" : "ODD";
-                winMultiplier = 2.00; 
+                // 🚀 [ওডস ১.৯৫ প্রফিট বুস্টার ম্যাথ]: জোড় বা বিজোড় মিললে টাকা সরাসরি ১.৯৫ গুণ লক ভাই ভাই!
+                winMultiplier = 1.95; 
             }
+
 
             if (userPrediction === selectedWinner) {
                 finalStatus = "win";
