@@ -60,12 +60,14 @@ app.post('/api/dice3d-shake', async (req, res) => {
 
     try {
         // 🔒 [ব্যালেন্স যাচাই]: হুবহু স্ক্রিনশটের প্রথম পাতার ৭৪-৭৯ নম্বর লাইনের কড়া ওরিজিনাল বর্ম ভাই ভাই
-        const balResponse = await axios.post(`${MAIN_SITE_URL}/api_callback.php`, {
+                const balResponse = await axios.post(`${MAIN_SITE_URL}/api_callback.php`, {
             action: "bet",
             username: userId,
-            amount: 0,
-            wallet: targetWallet
+            amount: reqAmount, // 🎯 বাজি ধরার ওরিজিনাল টাকা এখানে পাস হবে ভাই ভাই
+            wallet: targetWallet, // 74 নম্বর লাইনের মেইন ওয়ালেট এলাইনমেন্ট লক
+            game: typeof game !== 'undefined' ? game : "Dice-3D" // 👈 ৭৪ নম্বর লাইনের পর কমা এবং কন্ডিশনাল ব্র্যাকেট নিখুঁত বর্মে লক!
         }, { timeout: 30000 });
+
         
         let currentDbBalance = 0;
         // 🚀 [মাস্টার সিঙ্ক ফিক্সড]: স্ক্রিনশটের ৭৬ নম্বর লাইনের নিয়ম অনুযায়ী parseFloat(balResponse.data.balance) লক ভাই ভাই!
@@ -86,7 +88,7 @@ app.post('/api/dice3d-shake', async (req, res) => {
         let isLoopActive = true;
         let loopSafety = 0;
 
-        // 🎰 [🎰 ৯৫% ওরিজিনাল RTP ও ছক্কা ৩ডি চাকা র্যান্ডমাইজেশন লুপ ভাই ভাই]
+        // �Royal-Derby রিজিনাল RTP ও ছক্কা ৩ডি চাকা র্যান্ডমাইজেশন লুপ ভাই ভাই]
         while (isLoopActive && loopSafety < 200) {
             loopSafety++;
             
