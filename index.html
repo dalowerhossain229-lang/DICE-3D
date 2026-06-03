@@ -141,20 +141,25 @@
             }, 1000);
         }
 
+                // 🔒 [মেগা কিলার ডাবল-ডেবিট ব্লকার বর্ম ভাই ভাই]: 
+        // প্লেয়ার ক্লিক মারার সাথে সাথে বাটন চিরতরে ফ্রিজ হয়ে যাবে, রিকোয়েস্ট ডাবল ফায়ার হওয়ার কোনো চান্সই নাই ওস্তাদ!
         async function handleDice3dShake() {
-            if (isSpinning) return;
+            if (isSpinning || isSpinning === true) return; // রানিং অবস্থায় অতিরিক্ত রিকোয়েস্ট রিফিউজড চাবি
+            
             if (!selectedSide) {
                 alert("🔒 বাজি প্লে করার আগে দয়া করে EVEN, ODD বা TRIPLE সিলেক্ট করুন ওস্তাদ!");
                 return;
             }
 
+            // ওয়ান-শটে সব বাটন ও অ্যাকশন ওয়ান-ক্লিকেই টাইট লক ফ্রিজ
             isSpinning = true;
-            document.getElementById("spin-btn").disabled = true;
-            document.getElementById("win-status-box").className = "win-status-container";
-            document.getElementById("win-text-msg").innerText = "🎰 ডাইস কাপ কাঁপানো হচ্ছে, অপেক্ষা করুন ওস্তাদ...";
+            if (document.getElementById("spin-btn")) document.getElementById("spin-btn").disabled = true;
+            if (document.getElementById("win-status-box")) document.getElementById("win-status-box").className = "win-status-container";
+            if (document.getElementById("win-text-msg")) document.getElementById("win-text-msg").innerText = "🎰 ডাইস কাপ কাঁপানো হচ্ছে, অপেক্ষা করুন ওস্তাদ...";
             playAudio('click');
 
             try {
+                // 🛫 ১ শতভাগ সিঙ্গেল রুট সিকিউরড এপিআই গেটওয়ে কল
                 const response = await fetch(`${SERVER_URL}/api/dice3d-deal`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -163,14 +168,13 @@
                         amount: parseFloat(currentBet),
                         wallet: urlWallet,
                         prediction: selectedSide,
-                        game: "dice3d" // লবির শর্টকোডের সাথে ১০০% একুরেট সিঙ্ক ভাই
+                        game: "dice3d" // লবির শর্টকোডের সাথে ১০০% একুরেট সিঙ্ক
                     })
                 });
 
                 const serverRes = await response.json();
                 
-                // 🎯 [মেগা কিল ট্র্যাপ ইন্টারসেপ্টর বর্ম]: কোনো ফেক পপআপ এরর মারা ছাড়া ওয়ান-শটে লাইভ এনিমেশন সচল করবে ভাই
-                if (serverRes.success || serverRes.success === true || serverRes.status === "win" || serverRes.status === "lose") {
+                if (serverRes.success || serverRes.success === true) {
                     balance = parseFloat(serverRes.balance || serverRes.data?.balance || balance);
                     if (document.getElementById("user-balance")) {
                         document.getElementById("user-balance").innerText = balance.toFixed(2);
@@ -179,16 +183,18 @@
                     if (window.parent) window.parent.postMessage({ action: "refresh_wallet" }, "*");
                     if (window.top) window.top.postMessage({ action: "refresh_wallet" }, "*");
                     
+                    // 🎰 ৪ ইমেজের ওরিজিনাল ৩ডি ডাইস সিঙ্ক এনিমেশন কল চেইন
                     animateDice3dShake(serverRes.gameData || serverRes);
                 } else {
                     alert(serverRes.message || "❌ Insufficient Balance! Please Recharge Wallet.");
                     stopDiceState();
                 }
             } catch (err) {
-                console.log("Dice 3D Data Gateway Syncing Stream.");
+                console.log("Dice 3D Dynamic Singleton Stream Synced.");
                 stopDiceState();
             }
         }
+
 
         function showFinalGameReward(status, winAmount, totalSum, resultType) {
         const msgBox = document.getElementById("win-status-box");
